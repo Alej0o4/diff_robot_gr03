@@ -21,6 +21,7 @@ def generate_launch_description():
 
     # Configuración del twist_mux
     config_file_path = os.path.join(pkg_path, 'config', 'twist_mux.yaml')
+    ekf_config_path = os.path.join(pkg_path, 'config','ekf.yaml')
 
     joy_params = os.path.join(get_package_share_directory(pkg_folder),'config','joystick.yaml')
 
@@ -74,6 +75,13 @@ def generate_launch_description():
         name='mr_sensors_test',
         output='screen',
     )
+    
+    sensor_bridge = Node(
+        package='diff_robot_gr03',
+        executable='sensor_bridge_node',
+        name='sensor_bridge_node',
+        output='screen',
+    )
 
     teleop_node_joy = Node(package='teleop_twist_joy', 
                     executable='teleop_node',
@@ -86,6 +94,22 @@ def generate_launch_description():
                     executable='joy_bridge_node'
     )
 
+    # Nodo del EKF (robot_localization)
+    ekf_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        output='screen',
+        parameters=[ekf_config_path],
+    )
+
+    position_control = Node(
+        package='diff_robot_gr03',
+        executable='position_controller_node',
+        name='position_controller_node',
+        output='screen',
+    )
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'use_sim_time',
@@ -95,9 +119,12 @@ def generate_launch_description():
         rviz_arg,
         rviz_node,
         node_robot_state_publisher,
-        mr_sensors_test_node,
+        #mr_sensors_test_node,
+        sensor_bridge,
+        ekf_node,
         #teleop_node,
         joy_node,
         teleop_node_joy,
-        twist_mux_node
+        twist_mux_node,
+        position_control
     ])

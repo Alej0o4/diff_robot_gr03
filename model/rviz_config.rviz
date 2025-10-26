@@ -61,6 +61,8 @@ Visualization Manager:
           Value: true
         ideal_chassis:
           Value: true
+        ideal_imu_link:
+          Value: true
         ideal_left_wheel:
           Value: true
         ideal_right_wheel:
@@ -75,13 +77,15 @@ Visualization Manager:
           Value: true
         real_chassis:
           Value: true
+        real_imu_link:
+          Value: true
         real_left_wheel:
           Value: true
         real_right_wheel:
           Value: true
         real_ultrasonic:
           Value: true
-      Marker Scale: 0.5
+      Marker Scale: 0.20000000298023224
       Name: TF
       Show Arrows: true
       Show Axes: true
@@ -96,8 +100,10 @@ Visualization Manager:
                 {}
               ideal_right_wheel:
                 {}
-              ideal_ultrasonic:
-                {}
+            ideal_imu_link:
+              {}
+            ideal_ultrasonic:
+              {}
           real_base_link:
             real_chassis:
               real_caster_wheel:
@@ -106,6 +112,8 @@ Visualization Manager:
                 {}
               real_right_wheel:
                 {}
+            real_imu_link:
+              {}
             real_ultrasonic:
               {}
       Update Interval: 0
@@ -142,6 +150,11 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
+        ideal_imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         ideal_left_wheel:
           Alpha: 1
           Show Axes: false
@@ -171,6 +184,11 @@ Visualization Manager:
           Show Trail: false
           Value: true
         real_chassis:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        real_imu_link:
           Alpha: 1
           Show Axes: false
           Show Trail: false
@@ -294,5 +312,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 948
-  X: 685
+  X: 860
   Y: -32

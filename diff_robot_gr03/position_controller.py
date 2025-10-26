@@ -42,7 +42,7 @@ class PositionControllerNode(Node):
         # --- Publishers y Subscribers ---
         self.pose_subs = self.create_subscription(
             Odometry,
-            '/odom_real',
+            '/odometry/filtered', # <-- [CAMBIO CRÍTICO]
             self.pose_callback,
             10)
         

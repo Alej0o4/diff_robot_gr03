@@ -1,0 +1,64 @@
+# Configuración del EKF para el robot diferencial
+ekf_filter_node:
+  ros__parameters:
+    
+    # --- PARÁMETROS GENERALES ---
+    frequency: 30.0                      # Frecuencia de actualización del filtro (Hz)
+    sensor_timeout: 0.1                  # Tiempo de espera por sensores (s)
+    two_d_mode: true                     # ¡Importante! Ignora Z, Roll, Pitch
+    publish_tf: true                     # ¡Crítico! El EKF publicará la TF odom -> real_base_link
+
+    # --- FRAMES ---
+    # Deben coincidir con tu sistema
+    odom_frame: odom                     # El frame "fijo" de odometría (el que creará el EKF)
+    base_link_frame: real_base_link      # El frame de tu robot (de tu XACRO)
+    world_frame: odom                    # El frame del mundo (usamos odom)
+
+    # --- SENSOR 0: ODOMETRÍA DE ENCODERS ---
+    odom0: /odom_real                    # Topic de tu direct_kinematics_node
+    
+    # Configuración de qué datos usar de /odom_real
+    # [X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz, Vroll, Vpitch, Vyaw]
+    odom0_config: [ true,  true, false,    # Usar X, Y de la pose
+                    false, false, false,   # NO usar Roll, Pitch, Yaw de la pose
+                    true,  false, false,   # Usar Vx (velocidad lineal)
+                    false, false, true]    # Usar Vyaw (velocidad angular)
+    
+    odom0_differential: false            # Los datos de pose son absolutos
+    odom0_queue_size: 10
+
+    # --- SENSOR 1: IMU ---
+    # imu0: /imu/data                      # Topic de tu sensor_bridge_node
+    
+    # # Configuración de qué datos usar de /imu/data
+    # # [X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz, Vroll, Vpitch, Vyaw]
+    # imu0_config: [ false, false, false,    # NO usar X, Y, Z de la IMU
+    #                true,  true,  true,     # Usar Roll, Pitch, Yaw (¡Nuestra referencia de ángulo!)
+    #                false, false, false,    # NO usar velocidades lineales
+    #                true,  true,  true]     # Usar Velocidades Angulares
+    
+    # imu0_differential: false             # La orientación es absoluta (gracias a Madgwick)
+    # imu0_queue_size: 10
+    # imu0_remove_gravitational_acceleration: true # El filtro lo restará por si acaso
+
+    # --- MATRICES DE RUIDO (Afinación) ---
+    
+    # Q: Ruido del Proceso (cuánto desconfiamos del modelo de movimiento)
+    # Aumenta estos valores si el filtro se siente "lento"
+    process_noise_covariance: [
+      1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.3, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.6, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25,0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01,0.0, 0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01,0.0, 0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.02,0.0, 0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01,0.0, 0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.01,0.0,
+      0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.015
+    ]
