@@ -30,6 +30,8 @@ setup(
             'mr_sensors_test_rozo=diff_robot_gr03.mr_sensors_test_rozo:main',
             'position_controller_node=diff_robot_gr03.position_controller:main',
             'sensor_bridge_node=diff_robot_gr03.sensor_bridge_node:main',
+            'position_controller_node_v2=diff_robot_gr03.position_controller_v2:main',
+            'path_publisher_node=diff_robot_gr03.path_publisher_node:main',
         ],
     },
 )

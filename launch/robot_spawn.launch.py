@@ -105,9 +105,20 @@ def generate_launch_description():
 
     position_control = Node(
         package='diff_robot_gr03',
-        executable='position_controller_node',
-        name='position_controller_node',
+        executable='position_controller_node_v2',
+        name='position_controller_node_v2',
         output='screen',
+    )
+
+    path_publisher_ekf = Node(
+        package='diff_robot_gr03',
+        executable='path_publisher_node',
+        name='path_publisher_ekf',
+        output='screen',
+        parameters=[{
+            'odom_topic': '/odometry/filtered', # <- Le decimos que dibuje el path del EKF
+            'max_path_size': 1000 # Un buffer de 500 puntos
+        }]
     )
 
     return LaunchDescription([
@@ -122,6 +133,7 @@ def generate_launch_description():
         #mr_sensors_test_node,
         sensor_bridge,
         ekf_node,
+        path_publisher_ekf,
         #teleop_node,
         joy_node,
         teleop_node_joy,
