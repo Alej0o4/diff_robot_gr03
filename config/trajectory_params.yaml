@@ -1,0 +1,22 @@
+# trajectory_params.yaml
+dxf_exporter_node:
+  ros__parameters:
+    
+    # --- MODO DE TRAYECTORIA ---
+    # Elige la fuente de los waypoints.
+    # Opciones: "dxf", "rectangle"
+    trajectory_mode: "rectangle"
+
+    # --- Opciones para el modo "dxf" ---
+    dxf_file: '/home/alejo/diff_robot/src/diff_robot_gr03/dxf/30X30.dxf'
+    
+    # --- Opciones para el modo "rectangle" ---
+    # Dimensiones (en metros) del rectángulo a generar
+    rectangle:
+      width: 0.6  # Dimensión en X
+      height: 0.6 # Dimensión en Y
+
+trajectory_generator_node:
+  ros__parameters:
+    desired_velocity: 0.1
+    publish_rate: 10.0

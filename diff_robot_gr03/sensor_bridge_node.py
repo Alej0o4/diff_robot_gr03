@@ -5,10 +5,9 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile
 import numpy as np
 from sensor_msgs.msg import Imu, Range
-import math  # <-- [NUEVO] Necesario para las conversiones
+import math 
 
-# --- [NUEVO] ---
-# Funciones copiadas de tu nodo de prueba MrImuOrTFRozo
+# --- (Funciones quaternion_to_euler y euler_to_quaternion no cambian) ---
 def quaternion_to_euler(x, y, z, w):
     """
     Convierte un cuaternión (x, y, z, w) a ángulos de Euler (roll, pitch, yaw).
@@ -51,7 +50,6 @@ def euler_to_quaternion(roll, pitch, yaw):
     z = cr * cp * sy - sr * sp * cy
 
     return x, y, z, w
-# --- [FIN DE LO NUEVO] ---
 
 
 class SensorBridgeNode(Node):
@@ -107,8 +105,6 @@ class SensorBridgeNode(Node):
 
     def imu_callback(self, msg: Imu):
         
-        # --- [NUEVO] LÓGICA DE INVERSIÓN DEL EJE Z ---
-        
         # 1. Invertir la velocidad angular en Z
         msg.angular_velocity.z = -msg.angular_velocity.z
         
@@ -127,8 +123,6 @@ class SensorBridgeNode(Node):
         msg.orientation.z = new_z
         msg.orientation.w = new_w
         
-        # --- [FIN DE LÓGICA DE INVERSIÓN] ---
-        
         # 3. Asignar el frame_id correcto (con prefijo)
         msg.header.frame_id = "real_imu_link" 
         
@@ -141,8 +135,17 @@ class SensorBridgeNode(Node):
         self.imu_pub.publish(msg)
 
     def ultrasonic_callback(self, msg: Range):
-        # (Sin cambios)
+        
+        # --- [CORRECCIÓN CLAVE] ---
+        # 1. Asignar el timestamp del reloj del PC (la hora actual)
+        # Esto soluciona el error 'timestamp is earlier than all the data...'
+        msg.header.stamp = self.get_clock().now().to_msg()
+        # --- [FIN CORRECCIÓN] ---
+
+        # 2. Asignar el frame_id correcto
         msg.header.frame_id = "real_ultrasonic" 
+        
+        # 3. Re-publicar
         self.range_pub.publish(msg)
 
 def main():

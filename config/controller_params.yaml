@@ -1,0 +1,17 @@
+position_controller_node_v2:
+  ros__parameters:
+    
+    # --- Ganancias del Controlador ---
+    k_x: 0.3
+    k_y: 0.3
+    k_phi: 0.5
+    
+    # --- Tolerancias ---
+    tol_pos: 0.02    # 2 cm
+    tol_angle: 0.035 # ~2 grados
+    
+    # --- [MODO DE SIMULACIÓN] ---
+    # Aquí está la magia.
+    # Cambia esto a "/odometry/filtered" cuando quieras usar el robot real.
+    #odom_topic_source: "/odom_ideal"
+    odom_topic_source: "/odometry/filtered"

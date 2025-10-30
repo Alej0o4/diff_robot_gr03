@@ -19,11 +19,11 @@ def generate_launch_description():
     # Procesar el URDF (ya incluye ambos robots)
     robot_description = xacro.process_file(xacro_file).toxml()
 
-    # Configuración del twist_mux
+    # Configuración de parametros
     config_file_path = os.path.join(pkg_path, 'config', 'twist_mux.yaml')
     ekf_config_path = os.path.join(pkg_path, 'config','ekf.yaml')
-
-    joy_params = os.path.join(get_package_share_directory(pkg_folder),'config','joystick.yaml')
+    joy_params = os.path.join(pkg_path,'config','joystick.yaml')
+    controller_params_path = os.path.join(pkg_path, 'config', 'controller_params.yaml')
 
     # RViz
     rviz_arg = DeclareLaunchArgument(
@@ -108,6 +108,7 @@ def generate_launch_description():
         executable='position_controller_node_v2',
         name='position_controller_node_v2',
         output='screen',
+        parameters=[controller_params_path]
     )
 
     path_publisher_ekf = Node(

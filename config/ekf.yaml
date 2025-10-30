@@ -20,7 +20,7 @@ ekf_filter_node:
     # Configuración de qué datos usar de /odom_real
     # [X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz, Vroll, Vpitch, Vyaw]
     odom0_config: [ true,  true, false,    # Usar X, Y de la pose
-                    false, false, true,   # NO usar Roll, Pitch, Yaw de la pose
+                    false, false, false,   # NO usar Roll, Pitch, Yaw de la pose
                     true,  false, false,   # Usar Vx (velocidad lineal)
                     false, false, true]    # Usar Vyaw (velocidad angular)
     

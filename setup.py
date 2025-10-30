@@ -15,6 +15,8 @@ setup(
         (os.path.join("share", package_name,'launch'), glob("launch/*.launch.py")),
         (os.path.join("share", package_name,'model'), glob("model/*.*")),
         (os.path.join("share", package_name,'config'), glob("config/*.*")),
+        (os.path.join("share", package_name,'csv'), glob("config/*.csv")),
+        (os.path.join("share", package_name,'dxf'), glob("config/*.dxf")),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -32,6 +34,8 @@ setup(
             'sensor_bridge_node=diff_robot_gr03.sensor_bridge_node:main',
             'position_controller_node_v2=diff_robot_gr03.position_controller_v2:main',
             'path_publisher_node=diff_robot_gr03.path_publisher_node:main',
+            'dxf_exporter_node_v2=diff_robot_gr03.dxf_exporter_node_v2:main',
+            'trajectory_generator_node=diff_robot_gr03.trajectory_generator_node:main',
         ],
     },
 )
