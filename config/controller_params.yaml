@@ -13,5 +13,5 @@ position_controller_node_v2:
     # --- [MODO DE SIMULACIÓN] ---
     # Aquí está la magia.
     # Cambia esto a "/odometry/filtered" cuando quieras usar el robot real.
-    #odom_topic_source: "/odom_ideal"
-    odom_topic_source: "/odometry/filtered"
+    odom_topic_source: "/odom_ideal"
+    #odom_topic_source: "/odometry/filtered"

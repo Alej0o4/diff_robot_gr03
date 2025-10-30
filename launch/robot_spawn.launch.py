@@ -120,5 +120,5 @@ def generate_launch_description():
         joy_node,
         teleop_node_joy,
         twist_mux_node,
-        position_control
+        #position_control
     ])

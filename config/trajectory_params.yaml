@@ -1,22 +1,56 @@
 # trajectory_params.yaml
+# Parámetros para la arquitectura de seguimiento de trayectoria (Pure Pursuit)
+
+# 1. Parámetros del Proveedor de Path (DXF o Rectángulo)
 dxf_exporter_node:
   ros__parameters:
     
     # --- MODO DE TRAYECTORIA ---
-    # Elige la fuente de los waypoints.
     # Opciones: "dxf", "rectangle"
     trajectory_mode: "rectangle"
-
+    num_laps: 2 # Número de vueltas al path generado
     # --- Opciones para el modo "dxf" ---
     dxf_file: '/home/alejo/diff_robot/src/diff_robot_gr03/dxf/30X30.dxf'
     
     # --- Opciones para el modo "rectangle" ---
     # Dimensiones (en metros) del rectángulo a generar
     rectangle:
-      width: 0.6  # Dimensión en X
-      height: 0.6 # Dimensión en Y
+      width: 0.9  # Dimensión en X
+      height: 0.9 # Dimensión en Y
 
-trajectory_generator_node:
+# 2. Parámetros del Suavizador de Path (Spline)
+path_smoother_node:
   ros__parameters:
-    desired_velocity: 0.1
-    publish_rate: 10.0
+    # Número de puntos a generar en el path suave
+    num_smooth_points: 1000
+    
+    # Factor 's' de suavizado.
+    # s=0.0 -> El spline pasa EXACTAMENTE por los puntos (más tenso)
+    # s>0.0 -> El spline se "relaja" y puede no pasar por los puntos (más suave)
+    spline_smoothing_factor: 0.01
+
+# 3. Parámetros del Controlador (Pure Pursuit)
+pure_pursuit_controller:
+  ros__parameters:
+    
+    # --- Parámetros de "Tuning" (Ajuste) ---
+    lookahead_distance: 0.3   # (Ld) Distancia de la "zanahoria" (metros)
+    linear_velocity: 0.2      # (v) Velocidad lineal constante (m/s)
+    
+    # --- Parámetros de Configuración de Topics ---
+    # Fuente de la pose del robot
+    # Opciones: "/odom_ideal" (simulación) o "/odometry/filtered" (real)
+    odom_topic: "/odom_ideal"
+    
+    # Path que el controlador debe seguir
+    # Opciones: "/smooth_path" (para curvas) o "/linear_path" (para esquinas)
+    path_topic: "/linear_path" 
+    
+    # --- Parámetros de Sistema ---
+    controller_frequency: 20.0  # (Hz) Frecuencia del bucle de control
+    goal_tolerance: 0.05        # (metros) Qué tan cerca del punto final para detenerse
+
+path_linear_interpolator:
+  ros__parameters:
+    # Puntos a generar POR CADA segmento (ej. 4 segmentos * 50 = 200 puntos)
+    num_points_per_segment: 50

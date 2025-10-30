@@ -10,6 +10,8 @@ Panels:
         - /Range1
         - /Range1/Topic1
         - /Path2
+        - /Path3
+        - /Pose1
       Splitter Ratio: 0.5
     Tree Height: 684
   - Class: rviz_common/Selection
@@ -64,10 +66,6 @@ Visualization Manager:
           Value: true
         ideal_imu_link:
           Value: true
-        ideal_left_wheel:
-          Value: true
-        ideal_right_wheel:
-          Value: true
         ideal_ultrasonic:
           Value: true
         odom:
@@ -79,10 +77,6 @@ Visualization Manager:
         real_chassis:
           Value: true
         real_imu_link:
-          Value: true
-        real_left_wheel:
-          Value: true
-        real_right_wheel:
           Value: true
         real_ultrasonic:
           Value: true
@@ -97,10 +91,6 @@ Visualization Manager:
             ideal_chassis:
               ideal_caster_wheel:
                 {}
-              ideal_left_wheel:
-                {}
-              ideal_right_wheel:
-                {}
             ideal_imu_link:
               {}
             ideal_ultrasonic:
@@ -108,10 +98,6 @@ Visualization Manager:
           real_base_link:
             real_chassis:
               real_caster_wheel:
-                {}
-              real_left_wheel:
-                {}
-              real_right_wheel:
                 {}
             real_imu_link:
               {}
@@ -285,7 +271,55 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /generated_trajectory_rviz
+        Value: /linear_path
+      Value: true
+    - Alpha: 1
+      Buffer Length: 1
+      Class: rviz_default_plugins/Path
+      Color: 255; 170; 255
+      Enabled: true
+      Head Diameter: 0.30000001192092896
+      Head Length: 0.20000000298023224
+      Length: 0.30000001192092896
+      Line Style: Lines
+      Line Width: 0.029999999329447746
+      Name: Path
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Pose Color: 255; 85; 255
+      Pose Style: None
+      Radius: 0.029999999329447746
+      Shaft Diameter: 0.10000000149011612
+      Shaft Length: 0.10000000149011612
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /smooth_path
+      Value: true
+    - Alpha: 0.5
+      Axes Length: 1
+      Axes Radius: 0.10000000149011612
+      Class: rviz_default_plugins/Pose
+      Color: 255; 25; 0
+      Enabled: true
+      Head Length: 0.05000000074505806
+      Head Radius: 0.019999999552965164
+      Name: Pose
+      Shaft Length: 0.10000000149011612
+      Shaft Radius: 0.009999999776482582
+      Shape: Arrow
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /lookahead_point
       Value: true
   Enabled: true
   Global Options:
@@ -333,7 +367,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 1.1142578125
+      Distance: 2.3364055156707764
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -369,5 +403,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 948
-  X: 928
+  X: 131
   Y: -32

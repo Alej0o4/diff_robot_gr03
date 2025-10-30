@@ -4,29 +4,49 @@ from ament_index_python.packages import get_package_share_directory
 import os
 
 def generate_launch_description():
-    # Obtiene automáticamente la ruta correcta al paquete
     pkg_share = get_package_share_directory('diff_robot_gr03')
-    config_file = os.path.join(pkg_share, 'config', 'trajectory_params.yaml')
+    
+    # --- [CAMBIO] ---
+    # Ahora tenemos UN solo archivo de parámetros para todos los nodos
+    params_file = os.path.join(pkg_share, 'config', 'trajectory_params.yaml')
 
-    #  DXF Parser Node
+    # Nodo 1: El "Proveedor"
     dxf_exporter_node = Node(
         package='diff_robot_gr03',
-        executable='dxf_exporter_node_v2',
-        name='dxf_exporter_node',
+        executable='dxf_exporter_node_v2', 
+        name='dxf_exporter_node',          
         output='screen',
-        parameters=[config_file]
+        parameters=[params_file] # <-- Carga desde el archivo
     )
 
-    #  Trajectory Planner Node
-    trajectory_node = Node(
+    # Nodo 2: El "Suavizador"
+    path_smoother_node = Node(
         package='diff_robot_gr03',
-        executable='trajectory_generator_node',
-        name='trajectory_generator_node',
+        executable='path_smoother_node',
+        name='path_smoother_node',
         output='screen',
-        parameters=[config_file]
+        parameters=[params_file] # <-- Carga desde el archivo
+    )
+    
+    # Nodo 3: El "Perseguidor"
+    pure_pursuit_controller = Node(
+        package='diff_robot_gr03',
+        executable='pure_pursuit_controller',
+        name='pure_pursuit_controller',
+        output='screen',
+        parameters=[params_file] # <-- Carga desde el archivo
+    )
+    path_linear_interpolator_node = Node(
+        package='diff_robot_gr03',
+        executable='path_linear_interpolator',
+        name='path_linear_interpolator',
+        output='screen',
+        parameters=[params_file] 
     )
 
     return LaunchDescription([
-        trajectory_node,
-        dxf_exporter_node
+        dxf_exporter_node,
+        #path_smoother_node,
+        path_linear_interpolator_node,
+        pure_pursuit_controller
     ])
