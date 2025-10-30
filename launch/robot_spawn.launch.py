@@ -49,16 +49,6 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description, 'use_sim_time': use_sim_time}]
     )
 
-    # Teleop keyboard
-    teleop_node = Node(
-        package='teleop_twist_keyboard',
-        executable='teleop_twist_keyboard',
-        name='teleop_keyboard',
-        output='screen',
-        prefix='xterm -e',
-        remappings=[('/cmd_vel', '/teleop_vel')]
-    )
-
     # Twist mux
     twist_mux_node = Node(
         package='twist_mux',
@@ -67,13 +57,6 @@ def generate_launch_description():
         output='screen',
         parameters=[config_file_path],
         remappings=[('/cmd_vel_out', '/cmd_vel')]
-    )
-
-    mr_sensors_test_node = Node(
-        package='diff_robot_gr03',
-        executable='mr_sensors_test',
-        name='mr_sensors_test',
-        output='screen',
     )
     
     sensor_bridge = Node(
@@ -131,11 +114,9 @@ def generate_launch_description():
         rviz_arg,
         rviz_node,
         node_robot_state_publisher,
-        #mr_sensors_test_node,
         sensor_bridge,
         ekf_node,
         path_publisher_ekf,
-        #teleop_node,
         joy_node,
         teleop_node_joy,
         twist_mux_node,
