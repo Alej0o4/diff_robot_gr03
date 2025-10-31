@@ -28,15 +28,23 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            #Joystick related nodes
             'joy_bridge_node=diff_robot_gr03.joy_bridge_node:main',
+            'autonomy_gate_node = diff_robot_gr03.autonomy_gate_node:main',
+            #Sensor related nodes
             'sensor_bridge_node=diff_robot_gr03.sensor_bridge_node:main',
-            'position_controller_node_v2=diff_robot_gr03.position_controller_v2:main',
-            'path_publisher_node=diff_robot_gr03.path_publisher_node:main',
+            #Trajectory related nodes
             'dxf_exporter_node_v2=diff_robot_gr03.dxf_exporter_node_v2:main',
+            'path_linear_interpolator = diff_robot_gr03.path_linear_interpolator:main',
+            'pure_pursuit_controller = diff_robot_gr03.pure_pursuit_controller:main',
+            'position_controller_node_v2=diff_robot_gr03.position_controller_v2:main',
+            #Path publishing node 
+            'path_publisher_node=diff_robot_gr03.path_publisher_node:main',
+            
             'trajectory_generator_node=diff_robot_gr03.trajectory_generator_node:main',
             'path_smoother_node = diff_robot_gr03.path_smoother_node:main',
-            'pure_pursuit_controller = diff_robot_gr03.pure_pursuit_controller:main',
-            'path_linear_interpolator = diff_robot_gr03.path_linear_interpolator:main',
+
+            
         ],
     },
 )
