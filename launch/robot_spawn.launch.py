@@ -101,8 +101,25 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'odom_topic': '/odometry/filtered', # <- Le decimos que dibuje el path del EKF
-            'max_path_size': 1000 # Un buffer de 500 puntos
-        }]
+            'max_path_size': 500 # Un buffer de 500 puntos
+        }],
+        remappings=[
+            ('robot_path', '/path/filtered') # <-- ¡REMAPEO CLAVE!
+        ]
+    )
+
+    path_publisher_ideal = Node(
+        package='diff_robot_gr03',
+        executable='path_publisher_node',
+        name='path_publisher_ideal',
+        output='screen',
+        parameters=[{
+            'odom_topic': '/odom_ideal', # <-- Escucha la simulación
+            'max_path_size': 500 
+        }],
+        remappings=[
+            ('robot_path', '/path/ideal') # <-- ¡REMAPEO CLAVE!
+        ]
     )
 
     return LaunchDescription([
@@ -117,6 +134,7 @@ def generate_launch_description():
         sensor_bridge,
         ekf_node,
         path_publisher_ekf,
+        path_publisher_ideal,
         joy_node,
         teleop_node_joy,
         twist_mux_node,

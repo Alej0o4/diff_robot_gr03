@@ -15,26 +15,21 @@ dxf_exporter_node:
     # --- Opciones para el modo "rectangle" ---
     # Dimensiones (en metros) del rectángulo a generar
     rectangle:
-      width: 0.9  # Dimensión en X
-      height: 0.9 # Dimensión en Y
+      width: 1.2  # Dimensión en X
+      height: 0.6 # Dimensión en Y
 
-# 2. Parámetros del Suavizador de Path (Spline)
-path_smoother_node:
-  ros__parameters:
-    # Número de puntos a generar en el path suave
-    num_smooth_points: 1000
-    
-    # Factor 's' de suavizado.
-    # s=0.0 -> El spline pasa EXACTAMENTE por los puntos (más tenso)
-    # s>0.0 -> El spline se "relaja" y puede no pasar por los puntos (más suave)
-    spline_smoothing_factor: 0.01
-
+      # Offset de inicio (relativo al origen 0,0 del rectángulo)
+      # Para empezar en la esquina, usa (0.0, 0.0)
+      # Para empezar a la mitad del lado inferior, usa (width/2, 0.0) -> (0.3, 0.0)
+      start_x: 0.0 
+      start_y: 0.0
+      
 # 3. Parámetros del Controlador (Pure Pursuit)
 pure_pursuit_controller:
   ros__parameters:
     
     # --- Parámetros de "Tuning" (Ajuste) ---
-    lookahead_distance: 0.3   # (Ld) Distancia de la "zanahoria" (metros)
+    lookahead_distance: 0.2   # (Ld) Distancia de la "zanahoria" (metros)
     linear_velocity: 0.2      # (v) Velocidad lineal constante (m/s)
     
     # --- Parámetros de Configuración de Topics ---
@@ -53,4 +48,4 @@ pure_pursuit_controller:
 path_linear_interpolator:
   ros__parameters:
     # Puntos a generar POR CADA segmento (ej. 4 segmentos * 50 = 200 puntos)
-    num_points_per_segment: 50
+    num_points_per_segment: 100

@@ -28,8 +28,11 @@ class DXFParserNode(Node):
         self.declare_parameter('rectangle.width', 0.5)
         self.declare_parameter('rectangle.height', 0.3)
         self.declare_parameter('num_laps', 1)
+        self.declare_parameter('rectangle.start_x', 0.0)
+        self.declare_parameter('rectangle.start_y', 0.0)
 
         self.num_laps = self.get_parameter('num_laps').get_parameter_value().integer_value
+
 
         # --- Publishers ---
         qos = QoSProfile(
@@ -71,8 +74,13 @@ class DXFParserNode(Node):
         elif mode == 'rectangle':
             width = self.get_parameter('rectangle.width').get_parameter_value().double_value
             height = self.get_parameter('rectangle.height').get_parameter_value().double_value
+            start_x = self.get_parameter('rectangle.start_x').get_parameter_value().double_value
+            start_y = self.get_parameter('rectangle.start_y').get_parameter_value().double_value
+
             self.get_logger().info(f"Generando rectángulo base de {width}m x {height}m")
-            base_path = self.generate_rectangle_waypoints(width, height) # Retorna 5 puntos
+            self.get_logger().info(f"==> Punto de inicio en: ({start_x}, {start_y})")
+
+            base_path = self.generate_rectangle_waypoints(width, height, start_x, start_y)
         
         else:
             self.get_logger().error(f"Modo '{mode}' no reconocido. No se generaron waypoints.")
@@ -87,7 +95,9 @@ class DXFParserNode(Node):
 
         if mode == 'rectangle':
             self.get_logger().info(f"Repitiendo la trayectoria del rectángulo {self.num_laps} veces.")
-            lap_path = base_path[1:] # Omitir el primer (0,0)
+            # base_path ya es [s, pX, ..., pY, s]
+            # Para la siguiente vuelta, omitimos el 's' inicial
+            lap_path = base_path[1:] 
             final_path = list(base_path) # Empezar con la Vuelta 1
             for i in range(self.num_laps - 1):
                 final_path.extend(lap_path) # Añadir las vueltas 2..N
@@ -100,16 +110,79 @@ class DXFParserNode(Node):
                 final_path.extend(base_path)
             return final_path
     
-    def generate_rectangle_waypoints(self, width, height):
-        waypoints = []
+    def generate_rectangle_waypoints(self, width, height, start_x, start_y):
+        """
+        Genera los waypoints de un rectángulo, permitiendo
+        un punto de inicio arbitrario Y TRASLADANDO el path
+        para que ese inicio sea (0,0).
+        """
+        waypoints = [] # Esta será la lista final de waypoints
         entity_type = "RECTANGLE"
         entity_id = 0
-        waypoints.append((0.0, 0.0, 0.0, entity_type, entity_id)) # 1. Origen
-        waypoints.append((width, 0.0, 0.0, entity_type, entity_id)) # 2. (X, 0)
-        waypoints.append((width, height, 0.0, entity_type, entity_id)) # 3. (X, Y)
-        waypoints.append((0.0, height, 0.0, entity_type, entity_id)) # 4. (0, Y)
-        waypoints.append((0.0, 0.0, 0.0, entity_type, entity_id)) # 5. Origen (cierre)
-        self.get_logger().info(f"Generados 5 waypoints base para el rectángulo (iniciando en 0,0).")
+        
+        # 1. Definir los 4 vértices (lógicos)
+        p1 = (0.0, 0.0)
+        p2 = (width, 0.0)
+        p3 = (width, height)
+        p4 = (0.0, height)
+        
+        # 2. Definir el punto de inicio (lógico)
+        s = (start_x, start_y)
+        
+        # 3. Construir el path lógico (lista de tuplas (x,y))
+        raw_path_tuples = [] 
+        
+        # (Esta lógica de 'if math.isclose...' es idéntica a la anterior)
+        # Caso 1: 's' está en el lado inferior (entre p1 y p2)
+        if math.isclose(start_y, 0.0) and (0.0 <= start_x < width):
+            self.get_logger().info("Punto de inicio en LADO INFERIOR.")
+            raw_path_tuples = [s, p2, p3, p4, p1, s]
+            
+        # Caso 2: 's' está en el lado derecho (entre p2 y p3)
+        elif math.isclose(start_x, width) and (0.0 <= start_y < height):
+            self.get_logger().info("Punto de inicio en LADO DERECHO.")
+            raw_path_tuples = [s, p3, p4, p1, p2, s]
+
+        # Caso 3: 's' está en el lado superior (entre p3 y p4)
+        elif math.isclose(start_y, height) and (0.0 < start_x <= width):
+            self.get_logger().info("Punto de inicio en LADO SUPERIOR.")
+            raw_path_tuples = [s, p4, p1, p2, p3, s]
+            
+        # Caso 4: 's' está en el lado izquierdo (entre p4 y p1)
+        elif math.isclose(start_x, 0.0) and (0.0 < start_y <= height):
+            self.get_logger().info("Punto de inicio en LADO IZQUIERDO.")
+            raw_path_tuples = [s, p1, p2, p3, p4, s]
+
+        # Caso 5: 's' es (0,0) (o por defecto)
+        elif math.isclose(start_x, 0.0) and math.isclose(start_y, 0.0):
+             self.get_logger().info("Punto de inicio en ESQUINA (0,0).")
+             raw_path_tuples = [p1, p2, p3, p4, p1]
+             # 's' ya es (0.0, 0.0)
+             
+        else:
+            self.get_logger().warn(
+                f"Punto de inicio ({start_x}, {start_y}) está fuera del perímetro. "
+                f"Usando (0,0) por defecto."
+            )
+            raw_path_tuples = [p1, p2, p3, p4, p1]
+            s = (0.0, 0.0) # Forzar el offset a (0,0)
+
+        # --- [NUEVA LÓGICA DE TRASLACIÓN] ---
+        # El offset es el propio punto de inicio 's'
+        offset_x = s[0]
+        offset_y = s[1]
+        self.get_logger().info(f"Aplicando traslación de (-{offset_x:.2f}, -{offset_y:.2f}) a todos los puntos.")
+
+        # 4. Empaquetar los waypoints TRASLADADOS
+        for p in raw_path_tuples:
+            # Aplicar el offset (restar el punto de inicio)
+            translated_x = p[0] - offset_x
+            translated_y = p[1] - offset_y
+            
+            # Añadir a la lista final
+            waypoints.append((translated_x, translated_y, 0.0, entity_type, entity_id))
+            
+        self.get_logger().info(f"Generados {len(waypoints)} waypoints base (trasladados).")
         return waypoints
 
     def parse_dxf(self, path):
