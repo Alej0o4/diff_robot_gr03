@@ -44,9 +44,30 @@ def generate_launch_description():
         parameters=[params_file] 
     )
 
+    autonomy_gate_node = Node(
+        package='diff_robot_gr03',
+        executable='autonomy_gate_node',
+        name='autonomy_gate_node',
+        parameters=[
+            # (Puedes sobreescribir parámetros aquí si lo deseas)
+            # {'enable_button_idx': 0} # 0=A, 1=B, 2=X, 3=Y
+        ],
+        # Asegúrate de que los topics coincidan:
+        remappings=[
+            # Escucha a pure_pursuit
+            ('cmd_vel_in_topic', '/nav_vel'), 
+            # Escucha el joystick (asumiendo que joy_bridge publica en /joy)
+            ('joy_topic', '/joy'),
+            # Publica al twist_mux
+            ('cmd_vel_out_topic', '/nav_vel_gated')
+        ],
+        output='screen'
+    )
+
     return LaunchDescription([
         dxf_exporter_node,
         #path_smoother_node,
+        autonomy_gate_node,
         path_linear_interpolator_node,
         pure_pursuit_controller
     ])

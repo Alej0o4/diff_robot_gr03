@@ -10,7 +10,7 @@ twist_mux:
         timeout: 0.5
         priority: 60
       navigation:
-        topic: /nav_vel
+        topic: /nav_vel_gated
         timeout: 0.5
         priority: 90
 
