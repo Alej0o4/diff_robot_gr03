@@ -40,11 +40,6 @@ setup(
             'position_controller_node_v2=diff_robot_gr03.position_controller_v2:main',
             #Path publishing node 
             'path_publisher_node=diff_robot_gr03.path_publisher_node:main',
-            
-            'trajectory_generator_node=diff_robot_gr03.trajectory_generator_node:main',
-            'path_smoother_node = diff_robot_gr03.path_smoother_node:main',
-
-            
         ],
     },
 )
