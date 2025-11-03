@@ -24,17 +24,22 @@ class PurePursuitControllerNode(Node):
 
         # ... (lectura de parámetros no cambia) ...
         self.declare_parameter('lookahead_distance', 0.3)
-        self.declare_parameter('linear_velocity', 0.1)
         self.declare_parameter('odom_topic', '/odometry/filtered')
         self.declare_parameter('controller_frequency', 20.0)
         self.declare_parameter('goal_tolerance', 0.05)
         self.declare_parameter('path_topic', '/smooth_path')
+        self.declare_parameter('max_linear_velocity', 0.15) 
+        self.declare_parameter('max_angular_velocity', 1.0)
+
+
+
         self.ld = self.get_parameter('lookahead_distance').get_parameter_value().double_value
-        self.v = self.get_parameter('linear_velocity').get_parameter_value().double_value
         self.odom_topic = self.get_parameter('odom_topic').get_parameter_value().string_value
         self.frequency = self.get_parameter('controller_frequency').get_parameter_value().double_value
         self.goal_tol = self.get_parameter('goal_tolerance').get_parameter_value().double_value
         self.path_topic_name = self.get_parameter('path_topic').get_parameter_value().string_value
+        self.v_max = self.get_parameter('max_linear_velocity').get_parameter_value().double_value
+        self.w_max = self.get_parameter('max_angular_velocity').get_parameter_value().double_value
 
         # --- Variables de Estado ---
         self.path = None
@@ -62,7 +67,7 @@ class PurePursuitControllerNode(Node):
         
         self.timer = self.create_timer(1.0 / self.frequency, self.control_loop)
         
-        self.get_logger().info(f"Controlador Pure Pursuit iniciado. Ld={self.ld}m, v={self.v}m/s")
+        self.get_logger().info(f"==> Ld={self.ld}m, V_max={self.v_max}m/s, W_max={self.w_max}rad/s")
         self.get_logger().info(f"==> Escuchando pose en: '{self.odom_topic}'")
         self.get_logger().info(f"==> Escuchando path en: '{self.path_topic_name}'")
 
@@ -115,41 +120,60 @@ class PurePursuitControllerNode(Node):
             self.stop_robot()
             return
             
-        # 2. Revisar condición de PARADA (antes de calcular comandos)
+        # 2. Revisar condición de PARADA FINAL
         if is_last_point:
             dist_to_goal = math.dist(
                 (self.current_pose.position.x, self.current_pose.position.y),
                 (lookahead_point.position.x, lookahead_point.position.y)
             )
             
-            # Solo detente si estás cerca Y YA HABÍAS ARRANCADO
             if dist_to_goal < self.goal_tol and self.trajectory_started:
                 self.get_logger().info("¡Objetivo final alcanzado!")
                 self.stop_robot()
                 self.timer.cancel() # Detener el bucle de control
                 return # Salir del bucle
 
-        # 3. Calcular el ángulo de dirección (alpha)
-        alpha = self.calculate_steering_angle(lookahead_point)
         
-        # 4. Calcular la velocidad angular (w)
-        w = (2.0 * self.v * math.sin(alpha)) / self.ld
-        
-        # 5. Publicar Comandos
-        cmd_msg = Twist()
-        cmd_msg.linear.x = self.v
-        cmd_msg.angular.z = w
+        # --- [LÓGICA DE CONTROL RE-ORDENADA Y ADAPTATIVA] ---
 
-        # 6. Lógica para "desatascar" del (0,0) inicial
-        # Si estamos en el punto final (que también es el inicial), 
-        # pero aún no hemos arrancado, ignora 'alpha' y arranca recto.
+        # 3. Comprobar primero la condición de "desatasco"
+        # (Esto solo se activa al inicio, si estamos en el punto (0,0) del path)
         if is_last_point and not self.trajectory_started:
             self.get_logger().info("Iniciando trayectoria desde (0,0). 'Desatascando'...")
             self.trajectory_started = True
-            cmd_msg.angular.z = 0.0 # Sobreescribe 'w' y arranca recto
+            v_final = self.v_max # Arrancar recto a máxima velocidad
+            w_final = 0.0
+        
+        else:
+            # --- LÓGICA NORMAL DE PURE PURSUIT ADAPTATIVO ---
+            
+            # 4. Calcular el ángulo de dirección (alpha)
+            alpha = self.calculate_steering_angle(lookahead_point)
+            
+            # 5. Calcular velocidad angular 'raw' (usando v_max)
+            w_raw = (2.0 * self.v_max * math.sin(alpha)) / self.ld
+            
+            # 6. Limitar (clampear) la velocidad angular por seguridad
+            w_final = np.clip(w_raw, -self.w_max, self.w_max)
+            
+            # 7. Calcular la velocidad lineal dinámica (del nodo del profesor)
+            v_final = self.v_max / (abs(w_final) + 1.0)
+            
+            # (Opcional: log si se clampea, con throttle para no hacer spam)
+            if w_raw != w_final:
+                 self.get_logger().warn(f"Velocidad angular limitada a {w_final:.2f} rad/s", throttle_duration_sec=1.0)
+            
+            # Marcar que hemos arrancado (si no lo hizo la lógica de desatasco)
+            if not self.trajectory_started:
+                self.trajectory_started = True
 
+        # --- [FIN LÓGICA DE CONTROL] ---
+
+        # 8. Publicar Comandos
+        cmd_msg = Twist()
+        cmd_msg.linear.x = v_final
+        cmd_msg.angular.z = w_final
         self.cmd_vel_pub.publish(cmd_msg)
-    # --- [FIN CAMBIO 3] ---
 
     def find_lookahead_point(self):
         """

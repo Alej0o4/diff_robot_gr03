@@ -3,7 +3,7 @@ ekf_filter_node:
   ros__parameters:
     
     # --- PARÁMETROS GENERALES ---
-    frequency: 50.0                      # Frecuencia de actualización del filtro (Hz)
+    frequency: 30.0                      # Frecuencia de actualización del filtro (Hz)
     sensor_timeout: 0.1                  # Tiempo de espera por sensores (s)
     two_d_mode: true                     # ¡Importante! Ignora Z, Roll, Pitch
     publish_tf: true                     # ¡Crítico! El EKF publicará la TF odom -> real_base_link
@@ -19,11 +19,10 @@ ekf_filter_node:
     
     # Configuración de qué datos usar de /odom_real
     # [X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz, Vroll, Vpitch, Vyaw]
-    odom0_config: [ true,  true, false,    # Usar X, Y de la pose
-                    false, false, false,   # NO usar Roll, Pitch, Yaw de la pose
-                    true,  false, false,   # Usar Vx (velocidad lineal)
-                    false, false, true]    # Usar Vyaw (velocidad angular)
-    
+    odom0_config: [false, false, false, false, false, false, true, false, false, false, false, true]
+    # NO usar X, Y, Z de la pose
+    # NO usar Roll, Pitch, Yaw de la pose
+    # Usar Vx (velocidad lineal) # Usar Vyaw (velocidad angular)
     odom0_differential: false            # Los datos de pose son absolutos
     odom0_queue_size: 10
 
@@ -33,7 +32,7 @@ ekf_filter_node:
     # Configuración de qué datos usar de /imu/data
     # [X, Y, Z, Roll, Pitch, Yaw, Vx, Vy, Vz, Vroll, Vpitch, Vyaw]
     imu0_config: [ false, false, false,    # NO usar X, Y, Z de la IMU
-                   true,  true,  true,     # Usar Roll, Pitch, Yaw (¡Nuestra referencia de ángulo!)
+                   false,  false,  true,     # Usar Roll, Pitch, Yaw (¡Nuestra referencia de ángulo!)
                    false, false, false,    # NO usar velocidades lineales
                    true,  true,  true]     # Usar Velocidades Angulares
     

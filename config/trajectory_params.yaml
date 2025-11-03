@@ -15,8 +15,8 @@ dxf_exporter_node:
     # --- Opciones para el modo "rectangle" ---
     # Dimensiones (en metros) del rectángulo a generar
     rectangle:
-      width: 1.2  # Dimensión en X
-      height: 0.6 # Dimensión en Y
+      width: 1.8  # Dimensión en X
+      height: 1.8 # Dimensión en Y
 
       # Offset de inicio (relativo al origen 0,0 del rectángulo)
       # Para empezar en la esquina, usa (0.0, 0.0)
@@ -29,8 +29,11 @@ pure_pursuit_controller:
   ros__parameters:
     
     # --- Parámetros de "Tuning" (Ajuste) ---
-    lookahead_distance: 0.2   # (Ld) Distancia de la "zanahoria" (metros)
-    linear_velocity: 0.2      # (v) Velocidad lineal constante (m/s)
+    lookahead_distance: 0.3   # (Ld) Distancia de la "zanahoria" (metros)
+    
+    max_linear_velocity: 0.2    # (v_max) Velocidad lineal MÁXIMA en rectas (m/s)
+
+    max_angular_velocity: 1.57   # (w_max) Velocidad angular MÁXIMA (rad/s)
     
     # --- Parámetros de Configuración de Topics ---
     # Fuente de la pose del robot
@@ -43,7 +46,7 @@ pure_pursuit_controller:
     
     # --- Parámetros de Sistema ---
     controller_frequency: 20.0  # (Hz) Frecuencia del bucle de control
-    goal_tolerance: 0.05        # (metros) Qué tan cerca del punto final para detenerse
+    goal_tolerance: 0.03        # (metros) Qué tan cerca del punto final para detenerse
 
 path_linear_interpolator:
   ros__parameters:
