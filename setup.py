@@ -40,6 +40,7 @@ setup(
             'position_controller_node_v2=diff_robot_gr03.position_controller_v2:main',
             #Path publishing node 
             'path_publisher_node=diff_robot_gr03.path_publisher_node:main',
+            'complementary_filter_node = diff_robot_gr03.complementary_filter_node:main',
         ],
     },
 )

@@ -6,7 +6,7 @@ ekf_filter_node:
     frequency: 30.0                      # Frecuencia de actualización del filtro (Hz)
     sensor_timeout: 0.1                  # Tiempo de espera por sensores (s)
     two_d_mode: true                     # ¡Importante! Ignora Z, Roll, Pitch
-    publish_tf: true                     # ¡Crítico! El EKF publicará la TF odom -> real_base_link
+    publish_tf: false                     # ¡Crítico! El EKF publicará la TF odom -> real_base_link
 
     # --- FRAMES ---
     # Deben coincidir con tu sistema

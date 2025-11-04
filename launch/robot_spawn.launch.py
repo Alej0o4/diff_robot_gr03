@@ -78,12 +78,28 @@ def generate_launch_description():
     )
 
     # Nodo del EKF (robot_localization)
-    ekf_node = Node(
-        package='robot_localization',
-        executable='ekf_node',
-        name='ekf_filter_node',
+    # ekf_node = Node(
+    #     package='robot_localization',
+    #     executable='ekf_node',
+    #     name='ekf_filter_node',
+    #     output='screen',
+    #     parameters=[ekf_config_path],
+    # )
+
+    # Filtro complementario
+    complementary_filter_node = Node(
+        package='diff_robot_gr03',
+        executable='complementary_filter_node',
+        name='complementary_filter_node',
         output='screen',
-        parameters=[ekf_config_path],
+        parameters=[
+            # (Puedes sobreescribir los parámetros aquí si es necesario)
+             {'odom_topic': '/odom_real'},
+             {'imu_topic': '/imu/data'},
+             {'output_topic': '/odometry/complementary'},
+             {'base_link_frame': 'real_base_link'},
+             {'gain_orientation': 0.05} # Ajusta esta "ganancia" (0.01 a 0.1 es un buen inicio)
+        ]
     )
 
     position_control = Node(
@@ -100,7 +116,7 @@ def generate_launch_description():
         name='path_publisher_ekf',
         output='screen',
         parameters=[{
-            'odom_topic': '/odometry/filtered', # <- Le decimos que dibuje el path del EKF
+            'odom_topic': '/odom_real', # <- Le decimos que dibuje el path del EKF
             'max_path_size': 500 # Un buffer de 500 puntos
         }],
         remappings=[
@@ -132,7 +148,8 @@ def generate_launch_description():
         rviz_node,
         node_robot_state_publisher,
         sensor_bridge,
-        ekf_node,
+        #ekf_node,
+        complementary_filter_node,
         path_publisher_ekf,
         path_publisher_ideal,
         joy_node,

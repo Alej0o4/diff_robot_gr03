@@ -37,7 +37,7 @@ pure_pursuit_controller:
     
     # --- Parámetros de Configuración de Topics ---
     # Fuente de la pose del robot
-    # Opciones: "/odom_ideal" (simulación) o "/odometry/filtered" (real)
+    # Opciones: "/odom_ideal" (simulación) o "/odometry/filtered" (real) o "/odom_real o /odometry/complementary" 
     odom_topic: "/odom_ideal"
     
     # Path que el controlador debe seguir
