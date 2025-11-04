@@ -29,11 +29,18 @@ pure_pursuit_controller:
   ros__parameters:
     
     # --- Parámetros de "Tuning" (Ajuste) ---
-    lookahead_distance: 0.3   # (Ld) Distancia de la "zanahoria" (metros)
+    lookahead_distance: 0.4   # (Ld) Distancia de la "zanahoria" (metros)
     
     max_linear_velocity: 0.2    # (v_max) Velocidad lineal MÁXIMA en rectas (m/s)
 
     max_angular_velocity: 1.57   # (w_max) Velocidad angular MÁXIMA (rad/s)
+
+
+    # Factor de agresividad para la velocidad adaptativa.
+    # 1.0 = Original (frena mucho en curvas).
+    # 0.5 = Más rápido en curvas.
+    # 0.0 = Velocidad máxima (sin frenado adaptativo).
+    aggression_factor: 0.2
     
     # --- Parámetros de Configuración de Topics ---
     # Fuente de la pose del robot

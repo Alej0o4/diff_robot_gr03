@@ -30,6 +30,7 @@ class PurePursuitControllerNode(Node):
         self.declare_parameter('path_topic', '/smooth_path')
         self.declare_parameter('max_linear_velocity', 0.15) 
         self.declare_parameter('max_angular_velocity', 1.0)
+        self.declare_parameter('aggression_factor', 0.5)
 
 
 
@@ -40,6 +41,7 @@ class PurePursuitControllerNode(Node):
         self.path_topic_name = self.get_parameter('path_topic').get_parameter_value().string_value
         self.v_max = self.get_parameter('max_linear_velocity').get_parameter_value().double_value
         self.w_max = self.get_parameter('max_angular_velocity').get_parameter_value().double_value
+        self.k_aggression = self.get_parameter('aggression_factor').get_parameter_value().double_value
 
         # --- Variables de Estado ---
         self.path = None
@@ -67,7 +69,7 @@ class PurePursuitControllerNode(Node):
         
         self.timer = self.create_timer(1.0 / self.frequency, self.control_loop)
         
-        self.get_logger().info(f"==> Ld={self.ld}m, V_max={self.v_max}m/s, W_max={self.w_max}rad/s")
+        self.get_logger().info(f"==> Ld={self.ld}m, V_max={self.v_max}m/s, W_max={self.w_max}rad/s, K_agg={self.k_aggression}")
         self.get_logger().info(f"==> Escuchando pose en: '{self.odom_topic}'")
         self.get_logger().info(f"==> Escuchando path en: '{self.path_topic_name}'")
 
@@ -157,7 +159,7 @@ class PurePursuitControllerNode(Node):
             w_final = np.clip(w_raw, -self.w_max, self.w_max)
             
             # 7. Calcular la velocidad lineal dinámica (del nodo del profesor)
-            v_final = self.v_max / (abs(w_final) + 1.0)
+            v_final = self.v_max / (abs(w_final) * self.k_aggression + 1.0)
             
             # (Opcional: log si se clampea, con throttle para no hacer spam)
             if w_raw != w_final:
