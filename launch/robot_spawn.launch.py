@@ -117,7 +117,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'odom_topic': '/odom_real', # <- Le decimos que dibuje el path del EKF
-            'max_path_size': 500 # Un buffer de 500 puntos
+            'max_path_size': 10000 # Un buffer de 500 puntos
         }],
         remappings=[
             ('robot_path', '/path/filtered') # <-- ¡REMAPEO CLAVE!
@@ -131,7 +131,7 @@ def generate_launch_description():
         output='screen',
         parameters=[{
             'odom_topic': '/odom_ideal', # <-- Escucha la simulación
-            'max_path_size': 500 
+            'max_path_size': 10000 
         }],
         remappings=[
             ('robot_path', '/path/ideal') # <-- ¡REMAPEO CLAVE!

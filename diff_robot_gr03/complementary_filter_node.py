@@ -53,7 +53,7 @@ class ComplementaryFilterNode(Node):
         self.odom_sub = self.create_subscription(Odometry, odom_topic, self.odom_callback, 10)
         
         # --- Publicador de TF ---
-        self.tf_broadcaster = TransformBroadcaster(self)
+        #self.tf_broadcaster = TransformBroadcaster(self)
 
         self.get_logger().info(f"Filtro Complementario iniciado. Ganancia={self.gain*100}%")
         self.get_logger().info(f"==> Escuchando Odom: '{odom_topic}'")
@@ -79,22 +79,19 @@ class ComplementaryFilterNode(Node):
             return # Saltar la primera iteración
             
         dt = (current_time - self.last_odom_time).nanoseconds * 1e-9
+        if dt <= 0: # Evitar dt negativo o cero si los mensajes llegan desordenados
+            return
         self.last_odom_time = current_time
 
         # 3. Obtener velocidades de la Odometría
         vx = msg.twist.twist.linear.x
         vyaw = msg.twist.twist.angular.z # Velocidad angular de encoders
 
-        # --- 4. PREDICT STEP (Dead-Reckoning) ---
+        # --- [ORDEN CORREGIDO] ---
+
+        # --- 4. PREDICT & CORRECT YAW ---
         # Estimar el nuevo Yaw usando la velocidad angular de los encoders
         predicted_yaw = self.current_pose_yaw + vyaw * dt
-        
-        # Estimar la nueva posición usando la velocidad lineal y el Yaw predicho
-        self.current_pose_x += vx * math.cos(predicted_yaw) * dt
-        self.current_pose_y += vx * math.sin(predicted_yaw) * dt
-
-        # --- 5. CORRECT STEP (Filtro Complementario) ---
-        # Corregir la deriva de Yaw usando la IMU
         
         # Calcular el error entre la predicción y la "verdad" de la IMU
         yaw_error = normalize_angle(self.last_imu_yaw - predicted_yaw)
@@ -102,6 +99,13 @@ class ComplementaryFilterNode(Node):
         # Aplicar la corrección (aquí está la magia)
         # Tomamos nuestra predicción y le sumamos un pequeño % del error
         self.current_pose_yaw = normalize_angle(predicted_yaw + self.gain * yaw_error)
+
+        # --- 5. PREDICT POSITION (usando el Yaw CORREGIDO) ---
+        # Estimar la nueva posición usando la velocidad lineal y el Yaw CORREGIDO
+        self.current_pose_x += vx * math.cos(self.current_pose_yaw) * dt
+        self.current_pose_y += vx * math.sin(self.current_pose_yaw) * dt
+        
+        # --- [FIN DEL ORDEN CORREGIDO] ---
 
         # --- 6. PUBLICAR RESULTADOS ---
         
@@ -121,24 +125,33 @@ class ComplementaryFilterNode(Node):
         odom_msg.pose.pose.orientation.z = q[2]
         odom_msg.pose.pose.orientation.w = q[3]
         
-        # También copiamos las velocidades (no las filtramos, solo las pasamos)
+        # --- [MEJORA: AÑADIR COVARIANZAS] ---
+        # Le decimos al controlador:
+        # "Confía en mi Yaw (0.01), pero sé escéptico de mi X, Y (0.05)"
+        odom_msg.pose.covariance = np.diag([
+            0.05, 0.05, 99999.0, 99999.0, 99999.0, 0.01
+        ]).flatten().tolist()
+        
+        # Copiamos las velocidades Y SUS COVARIANZAS directamente del /odom_real
         odom_msg.twist.twist = msg.twist.twist
+        odom_msg.twist.covariance = msg.twist.covariance
+        # --- [FIN DE LA MEJORA] ---
         
         self.odom_pub.publish(odom_msg)
 
         # 6b. Publicar la Transformación TF (¡Esto arregla RViz!)
-        t = TransformStamped()
-        t.header.stamp = current_time.to_msg()
-        t.header.frame_id = self.odom_frame
-        t.child_frame_id = self.base_link_frame
+        # t = TransformStamped()
+        # t.header.stamp = current_time.to_msg()
+        # t.header.frame_id = self.odom_frame
+        # t.child_frame_id = self.base_link_frame
         
-        t.transform.translation.x = self.current_pose_x
-        t.transform.translation.y = self.current_pose_y
-        t.transform.translation.z = 0.0 # Asumimos 2D
+        # t.transform.translation.x = self.current_pose_x
+        # t.transform.translation.y = self.current_pose_y
+        # t.transform.translation.z = 0.0 # Asumimos 2D
         
-        t.transform.rotation = odom_msg.pose.pose.orientation
+        # t.transform.rotation = odom_msg.pose.pose.orientation
         
-        self.tf_broadcaster.sendTransform(t)
+        # self.tf_broadcaster.sendTransform(t)
 
 # Función auxiliar para convertir Euler a Cuaternión
 def euler_to_quaternion(yaw, pitch=0.0, roll=0.0):

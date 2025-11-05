@@ -4,7 +4,10 @@
 # 1. Parámetros del Proveedor de Path (DXF o Rectángulo)
 dxf_exporter_node:
   ros__parameters:
-    
+   # --- Best params ---
+   # width: 1.88
+   # height: 1.83
+   
     # --- MODO DE TRAYECTORIA ---
     # Opciones: "dxf", "rectangle"
     trajectory_mode: "rectangle"
@@ -15,8 +18,8 @@ dxf_exporter_node:
     # --- Opciones para el modo "rectangle" ---
     # Dimensiones (en metros) del rectángulo a generar
     rectangle:
-      width: 1.8  # Dimensión en X
-      height: 1.8 # Dimensión en Y
+      width: 1.88  # Dimensión en X
+      height: 1.83 # Dimensión en Y
 
       # Offset de inicio (relativo al origen 0,0 del rectángulo)
       # Para empezar en la esquina, usa (0.0, 0.0)
@@ -27,11 +30,16 @@ dxf_exporter_node:
 # 3. Parámetros del Controlador (Pure Pursuit)
 pure_pursuit_controller:
   ros__parameters:
+    # --- Best params ---
+    # max_linear_velocity: 0.25  # Velocidad lineal constante del robot (m/s)
+    # max_angular_velocity: 1.57 # Velocidad angular máxima (rad/s)
+    # lookahead_distance: 0.5    # Distancia de la "zanahoria" (metros)
+    # aggression_factor: 0.4     # Factor de agresividad para la velocidad adaptativa.
     
     # --- Parámetros de "Tuning" (Ajuste) ---
-    lookahead_distance: 0.4   # (Ld) Distancia de la "zanahoria" (metros)
+    lookahead_distance: 0.5   # (Ld) Distancia de la "zanahoria" (metros)
     
-    max_linear_velocity: 0.2    # (v_max) Velocidad lineal MÁXIMA en rectas (m/s)
+    max_linear_velocity: 0.25    # (v_max) Velocidad lineal MÁXIMA en rectas (m/s)
 
     max_angular_velocity: 1.57   # (w_max) Velocidad angular MÁXIMA (rad/s)
 
@@ -40,19 +48,20 @@ pure_pursuit_controller:
     # 1.0 = Original (frena mucho en curvas).
     # 0.5 = Más rápido en curvas.
     # 0.0 = Velocidad máxima (sin frenado adaptativo).
-    aggression_factor: 0.2
+    # Recomendado: 0.2 ara un buen compromiso.
+    aggression_factor: 0.4
     
     # --- Parámetros de Configuración de Topics ---
     # Fuente de la pose del robot
     # Opciones: "/odom_ideal" (simulación) o "/odometry/filtered" (real) o "/odom_real o /odometry/complementary" 
-    odom_topic: "/odom_ideal"
+    odom_topic: "/odom_real"
     
     # Path que el controlador debe seguir
     # Opciones: "/smooth_path" (para curvas) o "/linear_path" (para esquinas)
     path_topic: "/linear_path" 
     
     # --- Parámetros de Sistema ---
-    controller_frequency: 20.0  # (Hz) Frecuencia del bucle de control
+    controller_frequency: 50.0  # (Hz) Frecuencia del bucle de control
     goal_tolerance: 0.03        # (metros) Qué tan cerca del punto final para detenerse
 
 path_linear_interpolator:
