@@ -33,6 +33,7 @@ setup(
             'autonomy_gate_node = diff_robot_gr03.autonomy_gate_node:main',
             #Sensor related nodes
             'sensor_bridge_node=diff_robot_gr03.sensor_bridge_node:main',
+            'complementary_filter_node = diff_robot_gr03.complementary_filter_node:main',
             #Trajectory related nodes
             'dxf_exporter_node_v2=diff_robot_gr03.dxf_exporter_node_v2:main',
             'path_linear_interpolator = diff_robot_gr03.path_linear_interpolator:main',
@@ -40,7 +41,8 @@ setup(
             'position_controller_node_v2=diff_robot_gr03.position_controller_v2:main',
             #Path publishing node 
             'path_publisher_node=diff_robot_gr03.path_publisher_node:main',
-            'complementary_filter_node = diff_robot_gr03.complementary_filter_node:main',
+            # Metrics and analysis
+            'pose_error_analyzer = diff_robot_gr03.pose_error_analyzer:main',
         ],
     },
 )

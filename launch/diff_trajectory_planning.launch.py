@@ -18,15 +18,6 @@ def generate_launch_description():
         output='screen',
         parameters=[params_file] # <-- Carga desde el archivo
     )
-
-    # Nodo 2: El "Suavizador"
-    path_smoother_node = Node(
-        package='diff_robot_gr03',
-        executable='path_smoother_node',
-        name='path_smoother_node',
-        output='screen',
-        parameters=[params_file] # <-- Carga desde el archivo
-    )
     
     # Nodo 3: El "Perseguidor"
     pure_pursuit_controller = Node(
@@ -64,10 +55,23 @@ def generate_launch_description():
         output='screen'
     )
 
+    pose_error_analyzer_node = Node(
+        package='diff_robot_gr03',
+        executable='pose_error_analyzer',
+        name='pose_error_analyzer',
+        output='screen',
+        parameters=[{
+             # Asegúrate de que estos topics coincidan con tu prueba
+             'truth_topic': '/odom_ideal',
+             'estimate_topic': '/odom_real',
+             'plan_topic': '/linear_path'
+        }]
+    )
+
     return LaunchDescription([
         dxf_exporter_node,
-        #path_smoother_node,
         autonomy_gate_node,
         path_linear_interpolator_node,
-        pure_pursuit_controller
+        pure_pursuit_controller,
+        pose_error_analyzer_node
     ])

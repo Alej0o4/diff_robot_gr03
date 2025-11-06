@@ -7,7 +7,7 @@ dxf_exporter_node:
    # --- Best params ---
    # width: 1.88
    # height: 1.83
-   
+
     # --- MODO DE TRAYECTORIA ---
     # Opciones: "dxf", "rectangle"
     trajectory_mode: "rectangle"
@@ -19,7 +19,7 @@ dxf_exporter_node:
     # Dimensiones (en metros) del rectángulo a generar
     rectangle:
       width: 1.88  # Dimensión en X
-      height: 1.83 # Dimensión en Y
+      height: 1.84 # Dimensión en Y
 
       # Offset de inicio (relativo al origen 0,0 del rectángulo)
       # Para empezar en la esquina, usa (0.0, 0.0)
@@ -37,7 +37,7 @@ pure_pursuit_controller:
     # aggression_factor: 0.4     # Factor de agresividad para la velocidad adaptativa.
     
     # --- Parámetros de "Tuning" (Ajuste) ---
-    lookahead_distance: 0.5   # (Ld) Distancia de la "zanahoria" (metros)
+    lookahead_distance: 0.75   # (Ld) Distancia de la "zanahoria" (metros)
     
     max_linear_velocity: 0.25    # (v_max) Velocidad lineal MÁXIMA en rectas (m/s)
 
@@ -49,7 +49,7 @@ pure_pursuit_controller:
     # 0.5 = Más rápido en curvas.
     # 0.0 = Velocidad máxima (sin frenado adaptativo).
     # Recomendado: 0.2 ara un buen compromiso.
-    aggression_factor: 0.4
+    aggression_factor: 0.1
     
     # --- Parámetros de Configuración de Topics ---
     # Fuente de la pose del robot
